@@ -92,6 +92,7 @@ export async function getNotesList() {
   }
 }
 
+// this function is called when a new note is added
 export async function addNote(note: string, category: Category): Promise<void> {
   try {
     // open a connection to the board db
@@ -131,13 +132,19 @@ export async function getAllNote(): Promise<note[]> {
 
 export async function updateNoteChecked(noteObj: note) {
   try {
-    const boardDB = await openDB("boardDB", 1);
-    const boardObj: board = (await getCurrentBoard()) as board;
+    // update the noteobj checked field
     noteObj.checked = !noteObj.checked;
-    const notesList: note[] = await boardDB.get("board", boardObj.date);
-    console.log(notesList);
-    // let transaction = db2.transaction(['store3'], 'readwrite');
-    await boardDB.put("board", noteObj, boardObj.date);
+    // fetch the boardDB
+    const boardDB = await openDB("boardDB", 1);
+    // create a transaction
+    const transaction = boardDB.transaction("note", "readwrite");
+    transaction.store.put(noteObj);
+    const updatedNote = transaction.store.get(noteObj.uid);
+    // update the note obj
+
+    // const updatedNoteUid = await boardDB.put("note", noteObj);
+    // console.log(updatedNoteUid);
+    return updatedNote;
   } catch (error) {
     console.error(error);
   }

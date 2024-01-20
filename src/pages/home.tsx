@@ -1,11 +1,18 @@
 import { useState } from "react";
 import { CreateForm } from "../components/create";
 import DisplayTodo from "../components/display";
+import { GlobalContext, globalContextProps } from "../utils/context";
 
 export default function HomeTodo() {
   const [active, setActive] = useState(false);
+  const [fetchNotes, setFetchNotes] = useState(true);
+  const contextValue: globalContextProps = {
+    fetchNotes,
+    setFetchNotes,
+  };
+
   return (
-    <>
+    <GlobalContext.Provider value={contextValue}>
       <div className="row">
         <div className="col">
           <div
@@ -32,6 +39,6 @@ export default function HomeTodo() {
           </div>
         </div>
       </div>
-    </>
+    </GlobalContext.Provider>
   );
 }

@@ -1,5 +1,6 @@
-import { FormEvent, useState } from "react";
+import { FormEvent, useContext, useState } from "react";
 import { type Category, addNote } from "../utils/indexdb.ts";
+import { GlobalContext, globalContextProps } from "../utils/context.ts";
 
 interface activeProps {
   active: boolean;
@@ -9,6 +10,9 @@ interface activeProps {
 export function CreateForm({ active, setActive }: activeProps) {
   const [note, setNote] = useState("");
   const [category, setCategory] = useState<Category>("learn");
+  const { fetchNotes, setFetchNotes } = useContext(
+    GlobalContext
+  ) as globalContextProps;
   async function handleSubmit(e: FormEvent) {
     try {
       e.preventDefault();
@@ -16,7 +20,10 @@ export function CreateForm({ active, setActive }: activeProps) {
         throw new Error("enter a valid note");
       }
       await addNote(note, category);
+      // show the add button
       setActive(!active);
+      // fetch a freash list of notes
+      setFetchNotes(!fetchNotes);
     } catch (error) {
       console.log(error);
     }
