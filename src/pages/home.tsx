@@ -21,6 +21,11 @@ export default function HomeTodo() {
           >
             <div className="d-block" style={{ width: "500px" }}>
               <div className="m-4 d-block">
+                <div className="d-flex float-end py-0">
+                  <button className="btn btn-primary p-2">
+                    <i className="bi bi-plus"></i>category
+                  </button>
+                </div>
                 <DisplayTodo />
               </div>
               <div className="d-flex justify-content-center">
@@ -31,7 +36,7 @@ export default function HomeTodo() {
                     className="btn btn-primary"
                     onClick={() => setActive(!active)}
                   >
-                    <i className="bi bi-plus"></i>Add
+                    <i className="bi bi-plus"></i>Note
                   </button>
                 )}
               </div>

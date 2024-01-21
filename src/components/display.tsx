@@ -3,10 +3,11 @@ import {
   type note,
   board,
   updateNoteChecked,
-  getNotesList,
   getCurrentBoard,
+  getDateNotesList,
 } from "./../utils/indexdb";
 import { GlobalContext, globalContextProps } from "../utils/context";
+import moment from "moment";
 
 export default function DisplayTodo() {
   const [notesList, setNotesList] = useState<note[]>([]);
@@ -18,7 +19,10 @@ export default function DisplayTodo() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const notesList = (await getNotesList()) as note[];
+        const currentDate = moment().format("MMM Do YYYY");
+        const notesList: note[] = (await getDateNotesList(
+          currentDate
+        )) as note[];
         const currentBoard: board = (await getCurrentBoard()) as board;
         setBoard(currentBoard);
         // const notesList: note[] = await getAllNote();
@@ -34,17 +38,22 @@ export default function DisplayTodo() {
       setFetchNotes(!fetchNotes);
     }
   }, [notesList, board, fetchNotes]);
+  console.log("display list", notesList);
   return (
     <>
       {board && <div className="fs-3">{board.date}</div>}
       <div className="border border-primary rounded-3 p-4 ">
-        {notesList.map((noteObj: note) => {
-          return (
-            <div key={noteObj.uid} className="d-block">
-              <TodoCard noteObj={noteObj} />
-            </div>
-          );
-        })}
+        {notesList.length < 1 ? (
+          <>no notes for today</>
+        ) : (
+          notesList.map((noteObj: note) => {
+            return (
+              <div key={noteObj.uid} className="d-block">
+                <TodoCard noteObj={noteObj} />
+              </div>
+            );
+          })
+        )}
       </div>
     </>
   );
