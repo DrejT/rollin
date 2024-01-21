@@ -1,5 +1,5 @@
 import { FormEvent, useContext, useState } from "react";
-import { type Category, addNote } from "../utils/indexdb.ts";
+import { addNote } from "../utils/indexdb.ts";
 import { GlobalContext, globalContextProps } from "../utils/context.ts";
 
 interface activeProps {
@@ -9,7 +9,7 @@ interface activeProps {
 
 export function CreateForm({ active, setActive }: activeProps) {
   const [note, setNote] = useState("");
-  const [category, setCategory] = useState<Category>("learn");
+  const [category, setCategory] = useState<string>("learn");
   const { fetchNotes, setFetchNotes } = useContext(
     GlobalContext
   ) as globalContextProps;
@@ -61,7 +61,7 @@ export function CreateForm({ active, setActive }: activeProps) {
               name="category"
               value="learn"
               checked={category === "learn"}
-              onChange={(e) => setCategory(e.target.value as Category)}
+              onChange={(e) => setCategory(e.target.value)}
             />
             <label htmlFor="learn">learn</label>
           </div>
@@ -73,7 +73,7 @@ export function CreateForm({ active, setActive }: activeProps) {
               name="category"
               value="build"
               checked={category === "build"}
-              onChange={(e) => setCategory(e.target.value as Category)}
+              onChange={(e) => setCategory(e.target.value)}
             />
             <label htmlFor="build">build</label>
           </div>
@@ -85,7 +85,7 @@ export function CreateForm({ active, setActive }: activeProps) {
               name="category"
               value="manage"
               checked={category === "manage"}
-              onChange={(e) => setCategory(e.target.value as Category)}
+              onChange={(e) => setCategory(e.target.value)}
             />
             <label htmlFor="manage">manage</label>
           </div>
