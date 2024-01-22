@@ -1,99 +1,116 @@
-import { FormEvent, useContext, useState } from "react";
-import { addNote } from "../utils/indexdb.ts";
+import { FormEvent, useContext, useEffect, useState } from "react";
+import { addNote, getCategoriesList } from "../utils/indexdb.ts";
 import { GlobalContext, globalContextProps } from "../utils/context.ts";
+import moment from "moment";
 
-interface activeProps {
-  active: boolean;
-  setActive: (value: boolean) => void;
-}
+export function CreateModalForm() {
+  const { fetchNotes, setFetchNotes, fetchCategories, setfetchCategories } =
+    useContext(GlobalContext) as globalContextProps;
+  const [categoriesList, setCategoriesList] = useState<string[]>([]);
+  useEffect(() => {
+    async function fetchCategoriesList() {
+      try {
+        const currentDate = moment().format("MMM Do YYYY");
+        const categories: string[] = (await getCategoriesList(
+          currentDate
+        )) as string[];
+        setCategoriesList(categories);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+    if (fetchCategories) {
+      fetchCategoriesList();
+      console.log("now fetching", fetchCategories);
+      setfetchCategories(!fetchCategories);
+    }
+  }, [categoriesList, fetchCategories]);
 
-export function CreateForm({ active, setActive }: activeProps) {
-  const [note, setNote] = useState("");
-  const [category, setCategory] = useState<string>("learn");
-  const { fetchNotes, setFetchNotes } = useContext(
-    GlobalContext
-  ) as globalContextProps;
+  const [note, setNote] = useState<string>("");
+  const [category, setCategory] = useState<string>("");
   async function handleSubmit(e: FormEvent) {
     try {
       e.preventDefault();
       if (!note) {
         throw new Error("enter a valid note");
       }
+      if (!category) {
+        throw new Error("select a category");
+      }
       await addNote(note, category);
-      // show the add button
-      setActive(!active);
       // fetch a freash list of notes
       setFetchNotes(!fetchNotes);
     } catch (error) {
       console.log(error);
     }
   }
+  console.log(categoriesList);
   return (
-    <form onSubmit={handleSubmit} className="form">
-      <div className="mb-3">
-        <label htmlFor="note" className="form-label fs-4 open-sans">
-          create note
-        </label>
-        <div className="float-end p-0">
-          <button onClick={() => setActive(!active)} className="btn btn-danger">
-            <i className="bi bi-x"></i>
-          </button>
-        </div>
+    <>
+      <div
+        className="modal fade"
+        id="createModalForm"
+        tabIndex={-1}
+        aria-labelledby="formLabel"
+        aria-hidden="true"
+      >
+        <div className="modal-dialog modal-dialog-centered">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h1 className="modal-title fs-5" id="formLabel">
+                Add Note
+              </h1>
+              <button
+                type="button"
+                className="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              ></button>
+            </div>
+            {/* enter the note */}
+            <div className="modal-body">
+              <form action="" className="form" onSubmit={handleSubmit}>
+                <div className="form-floating p-2">
+                  <textarea
+                    onChange={(e) => setNote(e.target.value)}
+                    className="form-control"
+                    name="newNote"
+                    id="note"
+                  />
+                  <label htmlFor="note">new note</label>
+                </div>
+                {/* categories select option */}
+                <div className="form-floating p-2">
+                  <select
+                    value={category}
+                    onChange={(e) => setCategory(e.target.value)}
+                    className="form-select"
+                    id="category"
+                    aria-label="select a category"
+                  >
+                    {categoriesList?.map((category: string, i) => (
+                      <option key={i} value={category}>
+                        {category}
+                      </option>
+                    ))}
+                  </select>
+                  <label htmlFor="category">under category</label>
+                </div>
 
-        <textarea
-          className="form-control"
-          name=""
-          id="note"
-          cols={30}
-          rows={5}
-          value={note}
-          onChange={(e) => setNote(e.target.value)}
-        ></textarea>
+                <div className="modal-footer">
+                  <button
+                    type="submit"
+                    data-bs-dismiss="modal"
+                    className="btn btn-success"
+                  >
+                    create
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
       </div>
-      <div className="mb-3 form-check">
-        <fieldset className="">
-          <div className="fs-4">category:</div>
-          <div>
-            <input
-              className="form-check-input"
-              type="radio"
-              id="learn"
-              name="category"
-              value="learn"
-              checked={category === "learn"}
-              onChange={(e) => setCategory(e.target.value)}
-            />
-            <label htmlFor="learn">learn</label>
-          </div>
-          <div>
-            <input
-              className="form-check-input"
-              type="radio"
-              id="build"
-              name="category"
-              value="build"
-              checked={category === "build"}
-              onChange={(e) => setCategory(e.target.value)}
-            />
-            <label htmlFor="build">build</label>
-          </div>
-          <div>
-            <input
-              className="form-check-input"
-              type="radio"
-              id="manage"
-              name="category"
-              value="manage"
-              checked={category === "manage"}
-              onChange={(e) => setCategory(e.target.value)}
-            />
-            <label htmlFor="manage">manage</label>
-          </div>
-        </fieldset>
-      </div>
-      <button type="submit" className="btn btn-success">
-        Submit
-      </button>
-    </form>
+    </>
   );
 }

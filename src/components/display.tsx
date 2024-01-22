@@ -38,10 +38,9 @@ export default function DisplayTodo() {
       setFetchNotes(!fetchNotes);
     }
   }, [notesList, board, fetchNotes]);
-  console.log("display list", notesList);
   return (
     <>
-      {board && <div className="fs-3">{board.date}</div>}
+      {board && <div className="fs-2 fw-bold">{board.date}</div>}
       <div className="border border-primary rounded-3 p-4 ">
         {notesList.length < 1 ? (
           <>no notes for today</>

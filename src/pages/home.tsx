@@ -1,14 +1,16 @@
 import { useState } from "react";
-import { CreateForm } from "../components/create";
+import { CreateModalForm } from "../components/create";
 import DisplayTodo from "../components/display";
 import { GlobalContext, globalContextProps } from "../utils/context";
 
 export default function HomeTodo() {
-  const [active, setActive] = useState(false);
   const [fetchNotes, setFetchNotes] = useState(true);
+  const [fetchCategories, setfetchCategories] = useState<boolean>(true);
   const contextValue: globalContextProps = {
     fetchNotes,
     setFetchNotes,
+    fetchCategories,
+    setfetchCategories,
   };
 
   return (
@@ -22,23 +24,39 @@ export default function HomeTodo() {
             <div className="d-block" style={{ width: "500px" }}>
               <div className="m-4 d-block">
                 <div className="d-flex float-end py-0">
-                  <button className="btn btn-primary p-2">
-                    <i className="bi bi-plus"></i>category
-                  </button>
+                  <div className="btn-group">
+                    <button
+                      type="button"
+                      className="btn btn-primary dropdown-toggle m-0"
+                      data-bs-toggle="dropdown"
+                      aria-expanded="false"
+                    >
+                      <i className="bi bi-plus"></i>
+                      add
+                    </button>
+                    <ul className="dropdown-menu dropdown-menu-end">
+                      <li>
+                        <a className="dropdown-item" href="#">
+                          <i className="bi bi-blockquote-right"></i>category
+                        </a>
+                      </li>
+                      <li>
+                        <a
+                          className="dropdown-item"
+                          href="#"
+                          data-bs-toggle="modal"
+                          data-bs-target="#createModalForm"
+                        >
+                          <i className="bi bi-plus"></i>note
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
                 </div>
                 <DisplayTodo />
               </div>
               <div className="d-flex justify-content-center">
-                {active ? (
-                  <CreateForm active setActive={setActive} />
-                ) : (
-                  <button
-                    className="btn btn-primary"
-                    onClick={() => setActive(!active)}
-                  >
-                    <i className="bi bi-plus"></i>Note
-                  </button>
-                )}
+                <CreateModalForm />
               </div>
             </div>
           </div>

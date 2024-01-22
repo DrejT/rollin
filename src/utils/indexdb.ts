@@ -25,22 +25,6 @@ export interface board {
 
 const DEFAULT_CATEGORIES = ["learn", "manage", "build"];
 
-// user db utils
-// export function createUserDB(): void {
-//   openDB("userDB", 1, {
-//     upgrade(db) {
-//       db.createObjectStore("user", { autoIncrement: true });
-//     },
-//   });
-// }
-
-// export async function addUser(user: string): Promise<void> {
-//   const userDB = await openDB("userDB", 1);
-//   userDB.add("user", user);
-//   // db1.add("store1", true, "delivered");
-//   userDB.close();
-// }
-
 // board db utils
 export function createTodoDB(): void {
   openDB("todoDB", 1, {
@@ -69,6 +53,7 @@ export async function getCurrentBoard() {
     );
     // check if the query returned a board object
     // if not then create a new board object for the current date
+    console.log("inside current board", currentBoard);
     if (currentBoard === undefined) {
       // get the date of yesterday
       const yesterdayDate: string = moment()
@@ -79,13 +64,19 @@ export async function getCurrentBoard() {
       let uncheckedRefList: string[] = [];
       let previousCategories: string[] = [];
       // if yesterday's board is available
+      console.log(
+        "current board was undefined so yestrdayboard",
+        yesterdayBoard
+      );
       if (yesterdayBoard !== undefined) {
-        const yesterdayNotesList = await getDateNotesList(yesterdayBoard.date);
+        const yesterdayNotesList: note[] = (await getDateNotesList(
+          yesterdayBoard.date
+        )) as note[];
         // filter out all unique categories
         previousCategories = yesterdayNotesList?.filter((noteobj: note) => {
           if (previousCategories.includes(noteobj.category))
             return noteobj.category;
-        }) as string[];
+        }) as unknown as string[];
         // filter out the notes that were unchecked
         const uncheckedNoteList: note[] = yesterdayNotesList?.filter(
           (noteObj: note) => {
@@ -112,6 +103,7 @@ export async function getCurrentBoard() {
             ? previousCategories
             : DEFAULT_CATEGORIES,
       };
+      console.log("the final board is ", boardObj);
       await todoDB.add("board", boardObj);
       currentBoard = await todoDB.get("board", currentDate);
     }
@@ -161,31 +153,38 @@ export async function addNote(note: string, category: string): Promise<void> {
 }
 
 // get notes for a given date
-export async function getDateNotesList(date: string) {
+export async function getDateNotesList(
+  date: string
+): Promise<note[] | undefined> {
   try {
-    console.log(date);
+    // console.log(date);
     const todoDB = await openDB("todoDB");
     const transaction = todoDB.transaction("note", "readonly");
     const dateIndex = transaction.store.index("date");
-    const notesList = await dateIndex.getAll(date);
-    // console.log(notesList, date);
+    const notesList: note[] = (await dateIndex.getAll(date)) as note[];
+    console.log(notesList, date);
     return notesList;
   } catch (error) {
     console.log(error);
   }
 }
 
-export async function getAllNote(): Promise<note[]> {
-  const todoDB = await openDB("todoDB", 1);
-  // retrieve by key:
-  // noteDB.get("note", "cat001").then(console.log);
-  // retrieve all:
-  const notesList: note[] = await todoDB.getAll("note");
-  // count the total number of items in a store:
-  // noteDB.count("note").then(console.log);
-  // get all keys:
-  // noteDB.getAllKeys("note").then(console.log);
-  return notesList;
+export async function getCategoriesList(
+  currentDate: string
+): Promise<string[] | undefined> {
+  try {
+    const todoDB = await openDB("todoDB", 1);
+    const currentBoardObj: board = (await todoDB.get(
+      "board",
+      currentDate
+    )) as board;
+    const categories = currentBoardObj?.categories;
+    // const currentBoardObj: board = (await getCurrentBoard()) as board;
+    // const categories = currentBoardObj?.categories;
+    return categories;
+  } catch (error) {
+    console.log(error);
+  }
 }
 
 // updates the checks on a note
@@ -215,7 +214,9 @@ export async function addCategory(newCategory: string): Promise<void> {
     const currentBoardObj: board = (await getCurrentBoard()) as board;
     currentBoardObj.categories.push(newCategory);
     const todoDB = await openDB("todoDB", 1);
-    await todoDB.put("board", currentBoardObj).then(() => currentBoardObj);
+    await todoDB
+      .put("board", currentBoardObj)
+      .then(() => console.log(currentBoardObj));
   } catch (error) {
     console.log(error);
   }
