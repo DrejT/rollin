@@ -53,7 +53,7 @@ export async function getCurrentBoard() {
     );
     // check if the query returned a board object
     // if not then create a new board object for the current date
-    console.log("inside current board", currentBoard);
+    // console.log("inside current board", currentBoard);
     if (currentBoard === undefined) {
       // get the date of yesterday
       const yesterdayDate: string = moment()
@@ -162,7 +162,7 @@ export async function getDateNotesList(
     const transaction = todoDB.transaction("note", "readonly");
     const dateIndex = transaction.store.index("date");
     const notesList: note[] = (await dateIndex.getAll(date)) as note[];
-    console.log(notesList, date);
+    // console.log(notesList, date);
     return notesList;
   } catch (error) {
     console.log(error);
