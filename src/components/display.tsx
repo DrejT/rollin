@@ -41,19 +41,82 @@ export default function DisplayTodo() {
   return (
     <>
       {board && <div className="fs-2 fw-bold">{board.date}</div>}
-      <div className="border border-primary rounded-3 p-4 ">
+      <div className="">
         {notesList.length < 1 ? (
           <>no notes for today</>
         ) : (
-          notesList.map((noteObj: note) => {
-            return (
-              <div key={noteObj.uid} className="d-block">
-                <TodoCard noteObj={noteObj} />
-              </div>
-            );
-          })
+          <IterateCategories
+            categorieslist={board?.categories as string[]}
+            notesList={notesList}
+          />
         )}
       </div>
+    </>
+  );
+}
+
+interface iterateCategoriesProps {
+  categorieslist: string[];
+  notesList: note[];
+}
+
+function IterateCategories({
+  categorieslist,
+  notesList,
+}: iterateCategoriesProps) {
+  return (
+    <>
+      <div className="accordion" id="board">
+        {categorieslist?.map((category: string, i: number) => {
+          return (
+            <div key={i} id={category} className="accordion-item">
+              <h2 className="accordion-header">
+                <button
+                  className="accordion-button"
+                  type="button"
+                  data-bs-toggle="collapse"
+                  data-bs-target={`#category${i}`}
+                  aria-controls={`category${i}`}
+                >
+                  {category}
+                </button>
+              </h2>
+              <div
+                id={`category${i}`}
+                className={`accordion-collapse collapse ${
+                  i === 0 ? "show" : ""
+                }`}
+                data-bs-parent="#board"
+              >
+                <div className="accordion-body">
+                  <IterateNotes notesList={notesList} category={category} />
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </>
+  );
+}
+
+interface iterateNotesProps {
+  notesList: note[];
+  category: string;
+}
+
+function IterateNotes({ notesList, category }: iterateNotesProps) {
+  return (
+    <>
+      {notesList.map((noteObj: note) => {
+        return (
+          <div key={noteObj.uid} className="">
+            {noteObj.category === category ? (
+              <TodoCard noteObj={noteObj} />
+            ) : null}
+          </div>
+        );
+      })}
     </>
   );
 }
@@ -70,14 +133,18 @@ function TodoCard({ noteObj }: { noteObj: note }) {
     }
   }
   return (
-    <div>
+    <div className="">
       <input
+        className="m-2"
+        style={{ width: "16px", height: "16px" }}
         id={noteObj.uid}
         type="checkbox"
         checked={checked}
         onChange={handleChecked}
       />
-      <label htmlFor={noteObj.uid}>{noteObj.note}</label>
+      <label htmlFor={noteObj.uid} className="">
+        {noteObj.note}
+      </label>
     </div>
   );
 }
