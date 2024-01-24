@@ -3,7 +3,7 @@ import { addCategory, addNote, getCategoriesList } from "../utils/indexdb.ts";
 import { GlobalContext, globalContextProps } from "../utils/context.ts";
 import moment from "moment";
 
-export function CreateNoteForm({ createNav }: { createNav: string }) {
+export function CreateNoteForm() {
   const { fetchNotes, setFetchNotes, fetchCategories, setfetchCategories } =
     useContext(GlobalContext) as globalContextProps;
   const [categoriesList, setCategoriesList] = useState<string[]>([]);
@@ -90,7 +90,7 @@ export function CreateNoteForm({ createNav }: { createNav: string }) {
   );
 }
 
-export function CreateCategoryForm({ createNav }: { createNav: string }) {
+export function CreateCategoryForm() {
   const [newCategory, setNewCategory] = useState<string>("");
   async function handleSubmit(e: FormEvent) {
     try {

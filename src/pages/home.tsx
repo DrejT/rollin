@@ -107,10 +107,10 @@ interface createNavbarComponentProps {
 function CreateNavbarComponent({ createNav }: createNavbarComponentProps) {
   switch (createNav) {
     case "note":
-      return <CreateNoteForm createNav={createNav} />;
+      return <CreateNoteForm />;
       break;
     case "category":
-      return <CreateCategoryForm createNav={createNav} />;
+      return <CreateCategoryForm />;
       break;
     default:
       return <></>;
