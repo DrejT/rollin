@@ -2,16 +2,20 @@ import React, { SetStateAction, useState, useContext } from "react";
 import { CreateCategoryForm, CreateNoteForm } from "../components/create";
 import DisplayTodo from "../components/display";
 import { GlobalContext, globalContextProps } from "../utils/context";
+import Setting from "../components/settings";
 
 export default function HomeTodo() {
   const [fetchNotes, setFetchNotes] = useState(true);
-  const [fetchCategories, setfetchCategories] = useState<boolean>(true);
+  const [fetchCategories, setFetchCategories] = useState<boolean>(true);
+  const [fetchBoard, setFetchBoard] = useState<boolean>(true);
   const [createNav, setCreateNav] = useState<string>("note");
   const contextValue: globalContextProps = {
     fetchNotes,
     setFetchNotes,
+    fetchBoard,
+    setFetchBoard,
     fetchCategories,
-    setfetchCategories,
+    setFetchCategories,
   };
 
   return (
@@ -47,7 +51,9 @@ export default function HomeTodo() {
                 </div>
                 <DisplayTodo />
               </div>
-              <div className="d-flex justify-content-center"></div>
+              <div className="d-flex justify-content-center">
+                <Setting />
+              </div>
             </div>
           </div>
         </div>
@@ -62,7 +68,7 @@ interface createNavbarProps {
 }
 
 function CreateNavbar({ createNav, setCreateNav }: createNavbarProps) {
-  const { fetchCategories, setfetchCategories } = useContext(
+  const { fetchCategories, setFetchCategories } = useContext(
     GlobalContext
   ) as globalContextProps;
   return (
@@ -86,7 +92,7 @@ function CreateNavbar({ createNav, setCreateNav }: createNavbarProps) {
               onClick={(e) => {
                 setCreateNav(e.currentTarget.id);
                 // change state of an unrendered component before to fetch items on it
-                setfetchCategories(!fetchCategories);
+                setFetchCategories(!fetchCategories);
               }}
               className={`nav-link ${createNav === "category" ? "active" : ""}`}
               href="#"

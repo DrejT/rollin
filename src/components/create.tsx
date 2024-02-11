@@ -1,16 +1,23 @@
 import { FormEvent, useContext, useEffect, useState } from "react";
-import { addCategory, addNote, getCategoriesList } from "../utils/indexdb.ts";
+import {
+  addCategory,
+  addNote,
+  getCategoriesList,
+  note,
+} from "../utils/indexdb.ts";
 import { GlobalContext, globalContextProps } from "../utils/context.ts";
+import { DATE_FORMAT } from "../utils/constants.ts";
 import moment from "moment";
+import { triggerCreateNewNoteEvent } from "../utils/websocket.ts";
 
 export function CreateNoteForm() {
-  const { fetchNotes, setFetchNotes, fetchCategories, setfetchCategories } =
+  const { fetchNotes, setFetchNotes, fetchCategories, setFetchCategories } =
     useContext(GlobalContext) as globalContextProps;
   const [categoriesList, setCategoriesList] = useState<string[]>([]);
   useEffect(() => {
     async function fetchCategoriesList() {
       try {
-        const currentDate = moment().format("MMM Do YYYY");
+        const currentDate = moment().format(DATE_FORMAT);
         const categories: string[] = (await getCategoriesList(
           currentDate
         )) as string[];
@@ -22,7 +29,7 @@ export function CreateNoteForm() {
     if (fetchCategories) {
       fetchCategoriesList();
       // console.log("now fetching", fetchCategories);
-      setfetchCategories(!fetchCategories);
+      setFetchCategories(!fetchCategories);
     }
   }, [categoriesList, fetchCategories]);
 
@@ -34,11 +41,11 @@ export function CreateNoteForm() {
       if (note.length < 3) {
         throw new Error("enter a valid note");
       }
-      console.log(category);
       if (category.length < 3) {
         throw new Error("select a category");
       }
-      await addNote(note, category);
+      const newNote = (await addNote(note, category)) as note;
+      await triggerCreateNewNoteEvent(newNote);
       // fetch a freash list of notes
       setFetchNotes(!fetchNotes);
     } catch (error) {
