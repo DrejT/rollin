@@ -6,38 +6,58 @@ import {
   getCurrentBoard,
   getDateNotesList,
 } from "./../utils/indexdb";
+import { DATE_FORMAT } from "../utils/constants";
 import { GlobalContext, globalContextProps } from "../utils/context";
 import moment from "moment";
 
 export default function DisplayTodo() {
   const [notesList, setNotesList] = useState<note[]>([]);
   const [board, setBoard] = useState<board>();
-  const { fetchNotes, setFetchNotes } = useContext(
+  const { fetchNotes, setFetchNotes, fetchBoard, setFetchBoard } = useContext(
     GlobalContext
   ) as globalContextProps;
   // const [fetch, setFetch] = useState<boolean>(true);
   useEffect(() => {
-    const fetchData = async () => {
+    async function getNotes() {
       try {
-        const currentDate = moment().format("MMM Do YYYY");
+        const currentDate = moment().format(DATE_FORMAT);
         const notesList: note[] = (await getDateNotesList(
           currentDate
         )) as note[];
-        const currentBoard: board = (await getCurrentBoard()) as board;
-        setBoard(currentBoard);
+
         // const notesList: note[] = await getAllNote();
         setNotesList(notesList);
         // Handle the notesList as needed
       } catch (error) {
         console.log(error);
       }
-    };
-    // fetchnotes on first render
-    if (fetchNotes) {
-      fetchData();
+    }
+
+    async function getBoard() {
+      try {
+        const board = (await getCurrentBoard()) as board;
+        setBoard(board);
+        // console.log(board);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
+    // if the board is not present fetch the board
+    // and then fetch the notes
+    if (fetchBoard) {
+      getBoard();
+      setFetchBoard(!fetchBoard);
+      // console.log(board, fetchBoard, fetchNotes, notesList);
+    }
+    if (fetchNotes && !fetchBoard) {
+      getNotes();
       setFetchNotes(!fetchNotes);
     }
-  }, [notesList, board, fetchNotes]);
+    // fetchnotes on first render
+    // if (fetchNotes) {
+    // }
+  }, [notesList, board, fetchNotes, fetchBoard]);
   return (
     <>
       {board && <div className="fs-2 fw-bold">{board.date}</div>}
@@ -72,7 +92,7 @@ function IterateCategories({
             <div key={i} id={category} className="accordion-item">
               <h2 className="accordion-header">
                 <button
-                  className="accordion-button"
+                  className="accordion-button fs-5"
                   type="button"
                   data-bs-toggle="collapse"
                   data-bs-target={`#category${i}`}
@@ -110,7 +130,7 @@ function IterateNotes({ notesList, category }: iterateNotesProps) {
     <>
       {notesList.map((noteObj: note) => {
         return (
-          <div key={noteObj.uid} className="">
+          <div key={noteObj.id} className="">
             {noteObj.category === category ? (
               <TodoCard noteObj={noteObj} />
             ) : null}
@@ -137,12 +157,12 @@ function TodoCard({ noteObj }: { noteObj: note }) {
       <input
         className="m-2"
         style={{ width: "16px", height: "16px" }}
-        id={noteObj.uid}
+        id={noteObj.id}
         type="checkbox"
         checked={checked}
         onChange={handleChecked}
       />
-      <label htmlFor={noteObj.uid} className="">
+      <label htmlFor={noteObj.id} className="">
         {noteObj.note}
       </label>
     </div>
